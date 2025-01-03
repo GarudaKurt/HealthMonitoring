@@ -8,12 +8,29 @@ Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 MAX30105 particleSensor;
 
+const int buzzerPin = 6;
 unsigned long prevTime = 0;
 unsigned long intervalTime = 1000;
+
+enum class tones {
+  NOTE_C4 = 262,
+  NOTE_D4 = 294,
+  NOTE_E4 = 330,
+  NOTE_F4 = 349,
+  NOTE_G4 = 392,
+  NOTE_A4 = 440,
+  NOTE_B4 = 494,
+  NOTE_C5 = 523
+};
+
+tones melody[8] = {tones::NOTE_C4, tones::NOTE_D4, tones::NOTE_E4, tones::NOTE_F4,
+                    tones::NOTE_G4, tones::NOTE_A4, tones::NOTE_B4, tones::NOTE_C5};
+int noteDurations[8] = {4, 4, 4, 4, 4, 4, 4, 4}; // Quarter notes
 
 void setup() {
   Serial.begin(9600);
 
+  pinMode(buzzerPin, OUTPUT);
   if (!mlx.begin()) {
     Serial.println("Error connecting to MLX90614. Check wiring.");
     while (1);
@@ -39,7 +56,11 @@ void loop() {
     double bodyTemp = getBodyTemp();
     double spO2 = getSpO2();
     double heartRate = getHeartRate();
-
+    if(bodyTemp >= 38.0)
+      buzzerStart();
+    else
+      buzzerStop();
+      
     displayData(bodyTemp, spO2, heartRate);
 
     prevTime = currentTime;
@@ -86,4 +107,18 @@ void displayData(double temp, double spO2, double heartRate) {
   lcd.setCursor(9, 1);
   lcd.print("HR: ");
   lcd.print(heartRate, 0);
+}
+
+void buzzerStart() {
+  for (int i = 0; i < 8; i++) {
+    int noteDuration = 1000 / noteDurations[i];
+    tone(buzzerPin, static_cast<int>(melody[i]), noteDuration);
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    noTone(buzzerPin);
+  }
+}
+
+void buzzerStop(){
+  noTone(buzzerPin);
 }
