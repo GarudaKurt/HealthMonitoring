@@ -1,0 +1,27 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Address, columns, rows
+
+void setup() {
+  // Initialize the LCD
+  lcd.init();
+  lcd.backlight(); // Turn on the backlight
+  lcd.clear();
+
+  // Display test messages
+  lcd.setCursor(0, 0); // Set cursor to the first row, first column
+  lcd.print("Hello, World!");
+
+  lcd.setCursor(0, 1); // Set cursor to the second row, first column
+  lcd.print("I2C LCD Test");
+}
+
+void loop() {
+ 
+  lcd.noBacklight(); // Turn off backlight
+  delay(500); // Wait for 500ms
+  lcd.backlight(); // Turn on backlight
+  delay(500); // Wait for 500ms
+}
