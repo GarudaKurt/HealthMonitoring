@@ -19,14 +19,52 @@ byte bar[8][8] = {
 void initLCD(){
   lcd.init();
   lcd.backlight();
+  for (int i = 0; i < 8; i++)
+    lcd.createChar(i, bar[i]);
   lcd.setCursor(0, 0);
   lcd.print("Waiting...");
+  delay(2000);
+  
 }
 
 void displayWarnHR(const char * message) {
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.println("HR Failure!!!");
+}
+
+void displayHeartRateGraph(float heartRate) {
+  lcd.clear();
+  //float heartRate = random(30, 101);
+  Serial.print("Heart Rate: ");
+  Serial.println(heartRate);
+
+  int graphLevel;
+
+  if (heartRate >= 80 && heartRate <= 100) {
+    graphLevel = 7;
+  } else if (heartRate >= 70 && heartRate <= 79) {
+    graphLevel = 6;
+  } else if (heartRate >= 60 && heartRate <= 69) {
+    graphLevel = 5;
+  } else if (heartRate >= 50 && heartRate <= 59) {
+    graphLevel = 4;
+  } else {
+    graphLevel = random(1, 4);
+  }
+
+  for (int i = 0; i < 15; i++) {
+    graphData[i] = graphData[i + 1];
+  }
+  graphData[15] = graphLevel;
+
+  lcd.setCursor(0, 1);
+  lcd.print("                ");
+
+  for (int col = 0; col < 16; col++) {
+    lcd.setCursor(col, 1);
+    lcd.write(graphData[col]);
+  }
 }
 
 void displayData(float temp, float spO2, float heartRate) {
@@ -46,22 +84,5 @@ void displayData(float temp, float spO2, float heartRate) {
   lcd.print(heartRate, 0);
 }
 
-void displayHeartRateGraph(float heartRate) {
-  // Map heart rate to graph levels (0 to 7)
-  int graphLevel = map(heartRate, 60, 100, 0, 7);
-  graphLevel = constrain(graphLevel, 0, 7);
 
-  // Shift graph data to the left
-  for (int i = 0; i < 15; i++) {
-    graphData[i] = graphData[i + 1];
-  }
-  graphData[15] = graphLevel;
-
-  // Display the graph
-  lcd.setCursor(0, 0);
-  for (int col = 0; col < 16; col++) {
-    lcd.setCursor(col, 1);
-    lcd.write(graphData[col]);
-  }
-}
 
