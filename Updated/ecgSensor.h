@@ -3,5 +3,6 @@
 
 void initECG();
 float readECGHr();
+float calculateRespiratoryRate();
 
 #endif
