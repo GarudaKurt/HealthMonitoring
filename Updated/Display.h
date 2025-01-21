@@ -3,7 +3,7 @@
 
 void initLCD();
 void displayWarnHR(const char * message);
-void displayData(float temp, float spo2, float ecg);
+void displayData(float temp, float spo2, float ecg, float resplvl);
 void displayHeartRateGraph(float heartRate);
 
 #endif
