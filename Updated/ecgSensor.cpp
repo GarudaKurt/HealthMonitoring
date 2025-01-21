@@ -14,6 +14,11 @@ const int interval = 10000;
 int peakCount = 0;
 float heartRate = 0.0;
 
+const int RESP_INTERVAL = 30000; // 30 seconds for respiratory rate calculation
+unsigned long respPrevMillis = 0;
+int baseline = 512; // Approximate midpoint for the ECG signal
+int respPeakCount = 0;
+
 void initECG() {
   pinMode(LO_PLUS, INPUT);
   pinMode(LO_MINUS, INPUT);
@@ -51,4 +56,34 @@ float readECGHr() {
     return heartRate;
   }
   return heartRate; 
+}
+
+
+float calculateRespiratoryRate() {
+  static int lastEcgSignal = 0;
+  static bool increasing = false;
+
+  int ecgSignal = analogRead(ECG_PIN);
+
+  // Check for respiratory signal peaks
+  if (ecgSignal > baseline + 50 && !increasing) {
+    increasing = true;
+    respPeakCount++;
+  }
+  if (ecgSignal < baseline - 50) {
+    increasing = false;
+  }
+
+  // Every RESP_INTERVAL, calculate and reset the respiratory rate
+  if (millis() - respPrevMillis >= RESP_INTERVAL) {
+    float respiratoryRate = (respPeakCount * 2); // Convert 30-second peaks to breaths per minute
+    respPrevMillis = millis();
+    respPeakCount = 0;
+
+    Serial.print("Respiratory Rate: ");
+    Serial.print(respiratoryRate);
+    Serial.println(" breaths per minute");
+
+    return respiratoryRate;
+  }
 }
