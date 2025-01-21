@@ -25,22 +25,17 @@ void initECG() {
 }
 
 float readECGHr() {
-  // Check for lead off
-  if ((digitalRead(LO_PLUS) == 1) || (digitalRead(LO_MINUS) == 1)) {
-    Serial.println("Leads Off! Please check the connections.");
-    return -1; // Return an error value indicating leads off
-  } else {
     int ecgSignal = analogRead(ECG_PIN);
 
     // Check for peaks (simple threshold for peak detection)
     if (ecgSignal > 512) {  // Adjust threshold as per your ECG signal
-      if (millis() - prevMillis > 300) {  // Debounce to avoid false peaks
-        prevMillis = millis();
-        peakCount++;
-      }
+        if (millis() - prevMillis > 300) {  // Debounce to avoid false peaks
+            prevMillis = millis();
+            peakCount++;
+        }
     }
 
-    heartRate = (peakCount * 6); // Convert 10-second peaks to bpm
+    heartRate = (peakCount * 10); // Convert 10-second peaks to bpm
     peakCount = 0;
 
     Serial.print("Heart Rate: ");
@@ -48,14 +43,11 @@ float readECGHr() {
     Serial.println(" bpm");
 
     // Check if heart rate is normal
-    if (heartRate < MIN_HR || heartRate > MAX_HR) {
-      Serial.println("Warning: Heart Rate is not normal!");
-    } else {
-      Serial.println("Heart Rate is normal.");
-    }
+    if (heartRate < MIN_HR || heartRate > MAX_HR)
+        Serial.println("Warning: Heart Rate is not normal!");
+    else
+        Serial.println("Heart Rate is normal.");
     return heartRate;
-  }
-  return heartRate; 
 }
 
 
@@ -70,9 +62,9 @@ float calculateRespiratoryRate() {
     increasing = true;
     respPeakCount++;
   }
-  if (ecgSignal < baseline - 50) {
+  if (ecgSignal < baseline - 50)
     increasing = false;
-  }
+
 
   // Every RESP_INTERVAL, calculate and reset the respiratory rate
   if (millis() - respPrevMillis >= RESP_INTERVAL) {
