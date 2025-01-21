@@ -28,7 +28,7 @@ void loop() {
     readTemperature();
     readECGHr();
 
-    displayData(readSPO2(), readTemperature(), readECGHr());
+    displayData(readSPO2(), readTemperature(), readECGHr(), calculateRespiratoryRate();
     displayHeartRateGraph(readECGHr());
     if(!isSPO2Valid()) {
       displayWarnHR("Warn SPO2!!")
