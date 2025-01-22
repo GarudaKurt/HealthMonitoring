@@ -63,7 +63,7 @@ void displayHeartRateGraph(float heartRate) {
   }
 }
 
-void displayData(float temp, uint8_t spO2, float heartRate, float resplvl) {
+void displayData(float temp, uint8_t spO2, uint8_t heartRate, uint8_t resplvl) {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(temp, 1);
