@@ -11,17 +11,22 @@ const int MAX_HR = 120;
 
 unsigned long prevMillis = 0;
 const int interval = 10000;
-int peakCount = 0;
-float heartRate = 0.0;
+float *heartRate = nullptr;
+int *peakCount = nullptr;
 
 const int RESP_INTERVAL = 30000; // 30 seconds for respiratory rate calculation
 unsigned long respPrevMillis = 0;
 int baseline = 512; // Approximate midpoint for the ECG signal
-int respPeakCount = 0;
+int *respPeakCount = nullptr;
 
 void initECG() {
   pinMode(LO_PLUS, INPUT);
   pinMode(LO_MINUS, INPUT);
+
+  // Dynamically allocate memory for variables
+  heartRate = new float(0.0);
+  peakCount = new int(0);
+  respPeakCount = new int(0);
 }
 
 float readECGHr() {
@@ -31,25 +36,25 @@ float readECGHr() {
     if (ecgSignal > 512) {  // Adjust threshold as per your ECG signal
         if (millis() - prevMillis > 300) {  // Debounce to avoid false peaks
             prevMillis = millis();
-            peakCount++;
+            (*peakCount)++;
         }
     }
 
-    heartRate = (peakCount * 10); // Convert 10-second peaks to bpm
-    peakCount = 0;
+    *heartRate = (*peakCount * 10); // Convert 10-second peaks to bpm
+    *peakCount = 0;
 
     Serial.print("Heart Rate: ");
-    Serial.print(heartRate);
+    Serial.print(*heartRate);
     Serial.println(" bpm");
 
     // Check if heart rate is normal
-    if (heartRate < MIN_HR || heartRate > MAX_HR)
+    if (*heartRate < MIN_HR || *heartRate > MAX_HR)
         Serial.println("Warning: Heart Rate is not normal!");
     else
         Serial.println("Heart Rate is normal.");
-    return heartRate;
-}
 
+    return *heartRate;
+}
 
 float calculateRespiratoryRate() {
   static int lastEcgSignal = 0;
@@ -60,22 +65,40 @@ float calculateRespiratoryRate() {
   // Check for respiratory signal peaks
   if (ecgSignal > baseline + 50 && !increasing) {
     increasing = true;
-    respPeakCount++;
+    (*respPeakCount)++;
   }
   if (ecgSignal < baseline - 50)
     increasing = false;
 
-
   // Every RESP_INTERVAL, calculate and reset the respiratory rate
   if (millis() - respPrevMillis >= RESP_INTERVAL) {
-    float respiratoryRate = (respPeakCount * 2); // Convert 30-second peaks to breaths per minute
+    float respiratoryRate = (*respPeakCount * 2); // Convert 30-second peaks to breaths per minute
     respPrevMillis = millis();
-    respPeakCount = 0;
+    *respPeakCount = 0;
 
     Serial.print("Respiratory Rate: ");
     Serial.print(respiratoryRate);
     Serial.println(" breaths per minute");
 
     return respiratoryRate;
+  }
+  return 0.0; // Return 0.0 if RESP_INTERVAL hasn't passed yet
+}
+
+void cleanupECG() {
+  // Free allocated memory
+  if (heartRate != nullptr) {
+    delete heartRate;
+    heartRate = nullptr;
+  }
+
+  if (peakCount != nullptr) {
+    delete peakCount;
+    peakCount = nullptr;
+  }
+
+  if (respPeakCount != nullptr) {
+    delete respPeakCount;
+    respPeakCount = nullptr;
   }
 }
