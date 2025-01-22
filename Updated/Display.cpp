@@ -35,10 +35,6 @@ void displayWarnHR(const char * message) {
 
 void displayHeartRateGraph(float heartRate) {
   lcd.clear();
-  //float heartRate = random(30, 101);
-  Serial.print("Heart Rate: ");
-  Serial.println(heartRate);
-
   int graphLevel;
 
   if (heartRate >= 80 && heartRate <= 100) {
@@ -67,7 +63,7 @@ void displayHeartRateGraph(float heartRate) {
   }
 }
 
-void displayData(float temp, float spO2, float heartRate, float resplvl) {
+void displayData(float temp, uint8_t spO2, float heartRate, float resplvl) {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(temp, 1);
