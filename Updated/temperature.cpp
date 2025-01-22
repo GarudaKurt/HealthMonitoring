@@ -19,10 +19,6 @@ void initTemperature() {
     }
 }
 
-float randomDouble(float min, float max) {
-    return min + (max - min) * ((float)rand() / RAND_MAX);
-}
-
 float readTemperature() {
     if (!mlx) {
         Serial.println("MLX sensor not initialized!");
