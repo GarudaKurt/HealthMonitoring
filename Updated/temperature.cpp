@@ -3,27 +3,42 @@
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
 
-Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+// Pointer to the MLX90614 sensor object
+Adafruit_MLX90614 *mlx = nullptr;
 
 void initTemperature() {
-  if (!mlx.begin()) {
-    Serial.println("Error connecting to MLX sensor. Check wiring.");
-    while (1);
-  };
+    // Allocate memory for the MLX90614 object on the heap
+    mlx = new Adafruit_MLX90614();
+
+    if (!mlx->begin()) {
+        Serial.println("Error connecting to MLX sensor. Check wiring.");
+        // Clean up and halt execution
+        delete mlx;
+        mlx = nullptr;
+        while (1);
+    }
+}
+
+float randomDouble(float min, float max) {
+    return min + (max - min) * ((float)rand() / RAND_MAX);
 }
 
 float readTemperature() {
-   float temp = mlx.readObjectTempC();
-  if (temp < 36){
-    tmp = random(33,36);
-    temp = tmp+ randomDouble(0.01, 0.99);
-  }  
-  else if(tmp >= 37)
-  {
-    tmp = random(37,39);
-    temp = tmp + randomDouble(0.01, 0.99);
-  }
-  Serial.print("Body temp: ");
-  Serial.println(tmp);
-  return temp;
+    if (!mlx) {
+        Serial.println("MLX sensor not initialized!");
+        return -1; // Return an error value
+    }
+
+    float temp = mlx->readObjectTempC();
+    Serial.print("Body temp: ");
+    Serial.println(temp);
+    return temp;
+}
+
+void cleanupTemperature() {
+    // Free dynamically allocated memory
+    if (mlx) {
+        delete mlx;
+        mlx = nullptr;
+    }
 }
