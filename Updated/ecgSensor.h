@@ -2,7 +2,7 @@
 #define __ECGSENSOR__H
 
 void initECG();
-float readECGHr();
-float calculateRespiratoryRate();
+uint8_t readECGHr();
+uint8_t calculateRespiratoryRate();
 
 #endif
