@@ -11,7 +11,7 @@ const int MAX_HR = 120;
 
 unsigned long prevMillis = 0;
 const int interval = 10000;
-float *heartRate = nullptr;
+int *heartRate = nullptr;
 int *peakCount = nullptr;
 
 const int RESP_INTERVAL = 30000; // 30 seconds for respiratory rate calculation
@@ -24,12 +24,12 @@ void initECG() {
   pinMode(LO_MINUS, INPUT);
 
   // Dynamically allocate memory for variables
-  heartRate = new float(0.0);
+  heartRate = new int(0);
   peakCount = new int(0);
   respPeakCount = new int(0);
 }
 
-float readECGHr() {
+uint8_t readECGHr() {
     int ecgSignal = analogRead(ECG_PIN);
 
     // Check for peaks (simple threshold for peak detection)
@@ -56,7 +56,7 @@ float readECGHr() {
     return *heartRate;
 }
 
-float calculateRespiratoryRate() {
+uint8_t calculateRespiratoryRate() {
   static int lastEcgSignal = 0;
   static bool increasing = false;
 
@@ -72,7 +72,7 @@ float calculateRespiratoryRate() {
 
   // Every RESP_INTERVAL, calculate and reset the respiratory rate
   if (millis() - respPrevMillis >= RESP_INTERVAL) {
-    float respiratoryRate = (*respPeakCount * 2); // Convert 30-second peaks to breaths per minute
+    uint32_t respiratoryRate = (*respPeakCount * 2); // Convert 30-second peaks to breaths per minute
     respPrevMillis = millis();
     *respPeakCount = 0;
 
@@ -82,7 +82,8 @@ float calculateRespiratoryRate() {
 
     return respiratoryRate;
   }
-  return 0.0; // Return 0.0 if RESP_INTERVAL hasn't passed yet
+  Serial.println("Test not passed!");
+  return 0; 
 }
 
 void cleanupECG() {
