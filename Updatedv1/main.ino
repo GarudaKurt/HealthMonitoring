@@ -29,6 +29,15 @@ void loop() {
     uint8_t ecg = readECGHr();
     uint8_t respo = calculateRespiratoryRate();
 
+    Serial.print("Body temp: ");
+    Serial.println(temp);
+    Serial.print("SPO2: ");
+    Serial.println(spo2);  
+    Serial.print("ECG: ");
+    Serial.println(ecg);  
+    Serial.print("Respiratory level: ");
+    Serial.println(respo);  
+
     displayData(spo2, temp, ecg, respo);
     displayHeartRateGraph(readECGHr());
 
