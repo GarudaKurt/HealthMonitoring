@@ -6,6 +6,6 @@
 
 void initLCD();
 void updateDisplay(double temp, int32_t spo2, int32_t heartRate, int32_t resplvl);
-void displayWarnHR(const char * message);
+void displayWarnHR(const char * message, const char * messaga1);
 
 #endif
