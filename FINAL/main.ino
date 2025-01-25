@@ -2,10 +2,9 @@
 #include <Arduino.h>
 
 #include "pulseOximeter.h"
-//#include "temperature.h"
-//#include "temperature.h"
-//#include "ecgSensor.h"
-//#include "display.h"
+#include "temperature.h"
+#include "ecgSensor.h"
+#include "display.h"
 
 const int interval = 1000;
 unsigned long prev = 0;
