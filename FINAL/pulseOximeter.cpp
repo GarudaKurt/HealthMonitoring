@@ -47,17 +47,17 @@ void initSPO2() {
 }
 
 void getSPO2() {
-  bufferLength = 100; // buffer length of 100 stores 4 seconds of samples running at 25sps
+  //bufferLength = 100; // buffer length of 100 stores 4 seconds of samples running at 25sps
 
   // Read the first 100 samples
-  for (byte i = 0; i < bufferLength; i++) {
+  //for (byte i = 0; i < bufferLength; i++) {
     while (particleSensor.available() == false) // wait for new data
      particleSensor.check();
 
     redBuffer[i] = particleSensor.getRed();
     irBuffer[i] = particleSensor.getIR();
     particleSensor.nextSample();
-  }
+  //}
  
   // Calculate heart rate and SpO2
   maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
