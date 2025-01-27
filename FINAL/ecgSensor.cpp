@@ -1,66 +1,60 @@
 #include "ecgSensor.h"
 #include <Arduino.h>
 
-// Define constants without trailing semicolons
-#define LO_PLUS 10  // Leads off detection LO+
-#define LO_MINUS 11 // Leads off detection LO-
-#define ECG_PIN A0  // ECG sensor pin
+#define ecgPin A0  // ECG signal from AD8232 connected to analog pin A0
 
-// Define thresholds for children's heart rate (normal range: 70-120 bpm)
-#define MIN_HR 70
-#define MAX_HR 120
+// Heart rate variables
+unsigned long lastBeatTime = 0;    // Time of the last beat
+const int threshold = 512;         // Arbitrary threshold for pulse detection
+bool pulseAboveThreshold = false;
 
-unsigned long prevMillis = 0;
-const int interval = 10000;
-int32_t hr = 0;
-int32_t peakCount = 0;
+// Respiratory level variables
+const int bufferSize = 200;        // Number of samples for respiratory calculation
+int ecgBuffer[bufferSize];
+int bufferIndex = 0;
 
-const int RESP_INTERVAL = 30000;
-unsigned long respPrevMillis = 0;
-int32_t baseline = 512;
-int32_t respPeakCount = 0;
-
+// Sampling rate (200 Hz)
+const unsigned long sampleInterval = 5; // Milliseconds between samples
+unsigned long lastSampleTime = 0;
 void initECG() {
-  pinMode(LO_PLUS, INPUT);
-  pinMode(LO_MINUS, INPUT);
+  pinMode(ecgPin, INPUT);
 }
 
 int32_t readECGHr() {
-  int ecgSignal = analogRead(ECG_PIN);
+  int ecgSignal = analogRead(ecgPin);
+  static unsigned long timeBetweenBeats = 0; // Time difference between beats
+  static int32_t bpm = 0;
 
-  if (ecgSignal > 512) {
-    if (millis() - prevMillis > 300) {
-      peakCount++;
+  if (ecgValue > threshold && !pulseAboveThreshold) {
+    pulseAboveThreshold = true;
+
+    unsigned long currentTime = millis();
+    timeBetweenBeats = currentTime - lastBeatTime;
+    lastBeatTime = currentTime;
+
+    if (timeBetweenBeats > 0) {
+      bpm = 60000 / timeBetweenBeats; // Calculate BPM
     }
   }
 
-  hr = (peakCount * 8);
-  peakCount = 0;
+  if (ecgValue < threshold) {
+    pulseAboveThreshold = false;
+  }
 
-  if (hr < MIN_HR || hr > MAX_HR)
-    Serial.println("Warning: Heart Rate is not normal!");
-
-  return hr;
+  return bpm;
 }
 
 int32_t calculateRespiratoryRate() {
-  static int lastEcgSignal = 0;
-  static bool increasing = false;
+  long sum = 0;
+  long sumSquared = 0;
 
-  int ecgSignal = analogRead(ECG_PIN);
-
-  if (ecgSignal > baseline + 50 && !increasing) {
-    increasing = true;
-    respPeakCount++;
+  for (int i = 0; i < bufferSize; i++) {
+    sum += ecgBuffer[i];
+    sumSquared += (long)ecgBuffer[i] * ecgBuffer[i];
   }
-  if (ecgSignal < baseline - 50)
-    increasing = false;
 
-  if (millis() - respPrevMillis >= RESP_INTERVAL) {
-    int32_t respiratoryRate = (respPeakCount * 2);
-    respPrevMillis = millis();
-    respPeakCount = 0;
-    return respiratoryRate;
-  }
-  return 0;
+  float mean = (float)sum / bufferSize;
+  float variance = ((float)sumSquared / bufferSize) - (mean * mean);
+  int32_t respiratoryLevel = (int32_t)sqrt(variance); // Standard deviation as int32_t
+  return respiratoryLevel;
 }
