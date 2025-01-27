@@ -35,6 +35,10 @@ void displayWarnHR(const char* message, const char * message1) {
   lcd.print("Action Required!");
 }
 
+void clearDisplay() {
+  lcd.clear();
+}
+
 void updateDisplay(double temp, int32_t spO2, int32_t heartRate, int32_t resplvl) {
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -49,7 +53,10 @@ void updateDisplay(double temp, int32_t spO2, int32_t heartRate, int32_t resplvl
   lcd.print("|");
 
   lcd.print(resplvl);
+}
 
+
+void displayGraph(int32_t heartRate) {
   int32_t graphLevel;
   if (heartRate >= 80 && heartRate <= 100) {
     graphLevel = 7;
