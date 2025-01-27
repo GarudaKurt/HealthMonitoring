@@ -6,8 +6,11 @@
 #include "ecgSensor.h"
 #include "display.h"
 
-const int interval = 1000;
-unsigned long prev = 0;
+const int interval1 = 1000;
+const int interval2 = 5000;
+unsigned long prev1 = 0;
+unsigned long prev2 = 0;
+int32_t hr = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -20,13 +23,20 @@ void setup() {
 void loop() {
 
   unsigned long current = millis();
-  if(current - prev >= interval) {
+
+  if(current - prev1 >= interval1) {
+    hr = readECGHr();
+    displayGraph(hr);
+    prev1 = current;
+  }
+  
+  if(current - prev2 >= interval2) {
     getSPO2();
 
     //double temp = readTemperature();
     int32_t spo2 = spo2Value();
     //int32_t respiratoryRate = calculateRespiratoryRate();
-    //int32_t hr = readECGHr();
+    //hr = readECGHr();
     
     //Serial.print("Body Temp: ");
     //Serial.printlnI(readTemperature());
@@ -45,11 +55,13 @@ void loop() {
     if(spo2Validate == 0)
       spo2 = 0;
 
-    if(temp > 37.50)
+    if(temp > 37.50) {
       displayWarnHR(temp, "Temp");
-    
+      delay(5000);
+      clearDisplay();
+    }
     //updateDisplay(temp, spo2, hr, respiratoryRate );  
-    prev = current;
+    prev2 = current;
   }
 
 }
