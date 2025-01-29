@@ -5,6 +5,7 @@
 #include "temperature.h"
 #include "ecgSensor.h"
 #include "display.h"
+#include "alarm.h"
 
 const int interval1 = 1000;
 const int interval2 = 5000;
@@ -15,9 +16,9 @@ int32_t hr = 0;
 void setup() {
   Serial.begin(9600);
   initSPO2();
-  //initLCD();
-  //initTemperature();
-  //initECG();
+  initLCD();
+  initTemperature();
+  initECG();
 }
 
 void loop() {
@@ -33,19 +34,21 @@ void loop() {
   if(current - prev2 >= interval2) {
     getSPO2();
 
-    //double temp = readTemperature();
+    double temp = readTemperature();
     int32_t spo2 = spo2Value();
-    //int32_t respiratoryRate = calculateRespiratoryRate();
-    //hr = readECGHr();
+    int32_t respiratoryRate = calculateRespiratoryRate();
+    hr = readECGHr();
     
-    //Serial.print("Body Temp: ");
-    //Serial.printlnI(readTemperature());
+    updateDisplay(temp, spo2, hr, respiratoryRate ); 
+    
+    Serial.print("Body Temp: ");
+    Serial.printlnI(readTemperature());
 
-    //Serial.print("respiratoryRate: ");
-    //Serial.printlnI(calculateRespiratoryRate());
+    Serial.print("respiratoryRate: ");
+    Serial.printlnI(calculateRespiratoryRate());
 
-    //Serial.print("Heart Rate: ");
-    //Serial.printlnI(readECGHr());
+    Serial.print("Heart Rate: ");
+    Serial.printlnI(readECGHr());
     
     Serial.println(spo2Value());
     Serial.print("Validate: ");
@@ -57,10 +60,12 @@ void loop() {
 
     if(temp > 37.50) {
       displayWarnHR(temp, "Temp");
+      buzzerStart();
       delay(5000);
+      buzzerStop();
       clearDisplay();
     }
-    //updateDisplay(temp, spo2, hr, respiratoryRate );  
+
     prev2 = current;
   }
 
