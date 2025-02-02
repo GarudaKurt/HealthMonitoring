@@ -56,7 +56,8 @@ void loop() {
     Serial.print("SPO2: ");
 
     if(temp > 37.50) {
-      displayWarnHR(temp, "Temp");
+      String val = String(temp);
+      displayWarnHR(val.c_str(), "Temp");
       buzzerStart();
       delay(5000);
       buzzerStop();
