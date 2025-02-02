@@ -16,16 +16,17 @@ int bufferIndex = 0;
 // Sampling rate (200 Hz)
 const unsigned long sampleInterval = 5; // Milliseconds between samples
 unsigned long lastSampleTime = 0;
+
 void initECG() {
   pinMode(ecgPin, INPUT);
 }
 
 int32_t readECGHr() {
-  int ecgSignal = analogRead(ecgPin);
+  int ecgSignal = analogRead(ecgPin); // Read ECG signal from sensor
   static unsigned long timeBetweenBeats = 0; // Time difference between beats
   static int32_t bpm = 0;
 
-  if (ecgValue > threshold && !pulseAboveThreshold) {
+  if (ecgSignal > threshold && !pulseAboveThreshold) { // Replaced ecgValue with ecgSignal
     pulseAboveThreshold = true;
 
     unsigned long currentTime = millis();
@@ -37,7 +38,7 @@ int32_t readECGHr() {
     }
   }
 
-  if (ecgValue < threshold) {
+  if (ecgSignal < threshold) { // Replaced ecgValue with ecgSignal
     pulseAboveThreshold = false;
   }
 
