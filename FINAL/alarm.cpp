@@ -1,7 +1,7 @@
 #include "alarm.h"
 #include <Arduino.h>
 
-#define buzzerPin 11
+#define buzzerPin 6
 enum class tones {
   NOTE_C4 = 262,
   NOTE_D4 = 294,
