@@ -5,5 +5,6 @@
 void initECG();
 int32_t readECGHr();
 int32_t calculateRespiratoryRate();
+void updateECGBuffer();
 
 #endif
