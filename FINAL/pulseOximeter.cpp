@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include "MAX30105.h"
 #include "spo2_algorithm.h"
+#incluse "display.h"
 
 MAX30105 particleSensor;
 
@@ -27,6 +28,7 @@ void initSPO2() {
   // Initialize sensor
   if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) { // Use default I2C port, 400kHz speed
     Serial.println(F("MAX30105 was not found. Check wiring/power."));
+    displayWarnHR("MAX30105","Error");
   }
 
   byte ledBrightness = 60;   // Options: 0=Off to 255=50mA
